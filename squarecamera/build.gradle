@@ -1,5 +1,4 @@
 apply plugin: 'com.android.library'
-apply plugin: 'com.github.dcendents.android-maven'
 apply plugin: 'com.jfrog.bintray'
 
 version = "1.0.2"
@@ -50,36 +49,6 @@ bintray {
     }
 }
 
-install {
-    repositories.mavenInstaller {
-        pom {
-            project {
-                packaging 'aar'
-                name 'A camera that takes square photos'
-                url siteUrl
-                licenses {
-                    license {
-                        name 'The MIT License'
-                        url 'https://github.com/boxme/SquareCamera/blob/master/LICENSE'
-                    }
-                }
-                developers {
-                    developer {
-                        id 'boxme'
-                        name 'Desmond Ng'
-                        email 'desmond.ng.yang.yi@gmail.com'
-                    }
-                }
-                scm {
-                    connection gitUrl
-                    developerConnection gitUrl
-                    url siteUrl
-
-                }
-            }
-        }
-    }
-}
 
 repositories {
     maven {

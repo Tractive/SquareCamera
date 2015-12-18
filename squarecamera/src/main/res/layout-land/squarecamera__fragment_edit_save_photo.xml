@@ -18,23 +18,53 @@
         android:scaleType="centerCrop"
         android:layout_toRightOf="@id/topView"/>
 
-    <ImageButton
-        android:id="@+id/save_photo"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:padding="10dp"
-        android:layout_alignParentRight="true"
-        android:src="@drawable/squarecamera__save_photo_drawable"
-        android:background="@android:color/transparent"
-        android:layout_centerVertical="true"/>
 
-    <ImageButton
-        android:id="@+id/cancel"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:padding="10dp"
-        android:src="@drawable/squarecamera__cancel_drawable"
-        android:background="@android:color/transparent"
-        android:onClick="onCancel"/>
+    <RelativeLayout
+            android:layout_width="wrap_content"
+            android:background="@color/squarecamera__grey"
+            android:layout_centerHorizontal="true"
+            android:layout_alignParentRight="true"
+            android:layout_height="match_parent">
+
+        <ImageButton
+                android:id="@+id/redo_photo"
+                android:layout_width="60dp"
+                android:layout_height="60dp"
+                android:scaleType="fitCenter"
+
+                android:layout_centerHorizontal="true"
+                android:layout_marginTop="20dp"
+                android:layout_centerVertical="true"
+                android:padding="10dp"
+                android:src="@drawable/squarecamera__redo"
+                android:onClick="onRedo"
+                android:layout_alignParentTop="true"
+                android:background="@android:color/transparent"
+                />
+
+        <ImageButton
+                android:id="@+id/save_photo"
+                android:layout_width="90dp"
+                android:layout_height="90dp"
+                android:padding="10dp"
+                android:scaleType="fitCenter"
+                android:layout_centerVertical="true"
+                android:src="@drawable/squarecamera__ok"
+                android:background="@android:color/transparent"
+                />
+
+        <ImageButton
+                android:id="@+id/cancel_photo"
+                android:layout_width="60dp"
+                android:layout_height="60dp"
+                android:padding="10dp"
+                android:layout_centerHorizontal="true"
+                android:scaleType="fitCenter"
+                android:layout_marginBottom="20dp"
+                android:layout_alignParentBottom="true"
+                android:src="@drawable/squarecamera__cancel"
+                android:background="@android:color/transparent"
+                android:onClick="onCancel"/>
+    </RelativeLayout>
 
 </RelativeLayout>

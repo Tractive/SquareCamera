@@ -25,6 +25,8 @@ import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
 import android.view.animation.AccelerateDecelerateInterpolator;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import java.io.IOException;
@@ -54,7 +56,8 @@ public class CameraFragment extends Fragment implements SurfaceHolder.Callback, 
         return new CameraFragment();
     }
 
-    public CameraFragment() {}
+    public CameraFragment() {
+    }
 
     @Override
     public void onAttach(Activity activity) {
@@ -81,7 +84,7 @@ public class CameraFragment extends Fragment implements SurfaceHolder.Callback, 
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
+            Bundle savedInstanceState) {
         return inflater.inflate(R.layout.squarecamera__fragment_camera, container, false);
     }
 
@@ -171,14 +174,16 @@ public class CameraFragment extends Fragment implements SurfaceHolder.Callback, 
 
     private void setupFlashMode() {
         View view = getView();
-        if (view == null) return;
+        if (view == null) {
+            return;
+        }
 
         final TextView autoFlashIcon = (TextView) view.findViewById(R.id.auto_flash_icon);
         if (Camera.Parameters.FLASH_MODE_AUTO.equalsIgnoreCase(mFlashMode)) {
             autoFlashIcon.setText("Auto");
         } else if (Camera.Parameters.FLASH_MODE_ON.equalsIgnoreCase(mFlashMode)) {
             autoFlashIcon.setText("On");
-        }  else if (Camera.Parameters.FLASH_MODE_OFF.equalsIgnoreCase(mFlashMode)) {
+        } else if (Camera.Parameters.FLASH_MODE_OFF.equalsIgnoreCase(mFlashMode)) {
             autoFlashIcon.setText("Off");
         }
     }
@@ -192,18 +197,20 @@ public class CameraFragment extends Fragment implements SurfaceHolder.Callback, 
         super.onSaveInstanceState(outState);
     }
 
-    private void resizeTopAndBtmCover( final View topCover, final View bottomCover) {
-        ResizeAnimation resizeTopAnimation
-                = new ResizeAnimation(topCover, mImageParameters);
-        resizeTopAnimation.setDuration(800);
-        resizeTopAnimation.setInterpolator(new AccelerateDecelerateInterpolator());
-        topCover.startAnimation(resizeTopAnimation);
+    private void resizeTopAndBtmCover(final View topCover, final View bottomCover) {
 
-        ResizeAnimation resizeBtmAnimation
-                = new ResizeAnimation(bottomCover, mImageParameters);
-        resizeBtmAnimation.setDuration(800);
-        resizeBtmAnimation.setInterpolator(new AccelerateDecelerateInterpolator());
-        bottomCover.startAnimation(resizeBtmAnimation);
+        if (mImageParameters.isPortrait()) {
+            topCover.setLayoutParams(new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, mImageParameters.mCoverHeight));
+            RelativeLayout.LayoutParams bottomParams = new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, mImageParameters.mCoverHeight);
+            bottomParams.addRule(RelativeLayout.ALIGN_BOTTOM, R.id.camera_preview_view);
+            bottomCover.setLayoutParams(bottomParams);
+        } else {
+            topCover.setLayoutParams(new RelativeLayout.LayoutParams(mImageParameters.mCoverHeight, ViewGroup.LayoutParams.MATCH_PARENT));
+            RelativeLayout.LayoutParams bottomParams = new RelativeLayout.LayoutParams(mImageParameters.mCoverHeight, ViewGroup.LayoutParams.MATCH_PARENT );
+            bottomParams.addRule(RelativeLayout.ALIGN_RIGHT, R.id.camera_preview_view);
+            bottomCover.setLayoutParams(bottomParams);
+        }
+
     }
 
     private void getCamera(int cameraID) {
@@ -303,7 +310,6 @@ public class CameraFragment extends Fragment implements SurfaceHolder.Callback, 
 
         parameters.setPreviewSize(bestPreviewSize.width, bestPreviewSize.height);
         parameters.setPictureSize(bestPictureSize.width, bestPictureSize.height);
-
 
         // Set continuous picture focus, if it's supported
         if (parameters.getSupportedFocusModes().contains(Camera.Parameters.FOCUS_MODE_CONTINUOUS_PICTURE)) {
@@ -415,9 +421,10 @@ public class CameraFragment extends Fragment implements SurfaceHolder.Callback, 
     @Override
     public void surfaceCreated(SurfaceHolder holder) {
         mSurfaceHolder = holder;
-
         getCamera(mCameraID);
         startCameraPreview();
+
+
     }
 
     @Override
@@ -432,7 +439,9 @@ public class CameraFragment extends Fragment implements SurfaceHolder.Callback, 
 
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
-        if (resultCode != Activity.RESULT_OK) return;
+        if (resultCode != Activity.RESULT_OK) {
+            return;
+        }
 
         switch (requestCode) {
             case 1:
@@ -446,8 +455,6 @@ public class CameraFragment extends Fragment implements SurfaceHolder.Callback, 
 
     /**
      * A picture has been taken
-     * @param data
-     * @param camera
      */
     @Override
     public void onPictureTaken(byte[] data, Camera camera) {

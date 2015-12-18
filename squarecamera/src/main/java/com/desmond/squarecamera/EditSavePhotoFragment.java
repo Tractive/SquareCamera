@@ -4,6 +4,7 @@ package com.desmond.squarecamera;
 import android.content.res.Configuration;
 import android.graphics.Bitmap;
 import android.graphics.Matrix;
+import android.graphics.PorterDuff;
 import android.graphics.drawable.BitmapDrawable;
 import android.net.Uri;
 import android.os.Bundle;
@@ -27,7 +28,7 @@ public class EditSavePhotoFragment extends Fragment {
     public static final String IMAGE_INFO = "image_info";
 
     public static Fragment newInstance(byte[] bitmapByteArray, int rotation,
-                                       @NonNull ImageParameters parameters) {
+            @NonNull ImageParameters parameters) {
         Fragment fragment = new EditSavePhotoFragment();
 
         Bundle args = new Bundle();
@@ -39,18 +40,31 @@ public class EditSavePhotoFragment extends Fragment {
         return fragment;
     }
 
-    public EditSavePhotoFragment() {}
+    public EditSavePhotoFragment() {
+    }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
+            Bundle savedInstanceState) {
         return inflater.inflate(R.layout.squarecamera__fragment_edit_save_photo, container, false);
+    }
+
+    private void colorIcons(View _view) {
+        SquareCameraSettings settings = SquareCameraSettings.getCurrentSetting();
+        ImageView ok = (ImageView) _view.findViewById(R.id.save_photo);
+        ImageView redo = (ImageView) _view.findViewById(R.id.redo_photo);
+        ImageView cancel = (ImageView) _view.findViewById(R.id.cancel_photo);
+
+        ok.getDrawable().mutate().setColorFilter(getResources().getColor(settings.okColor), PorterDuff.Mode.MULTIPLY);
+        redo.getDrawable().mutate().setColorFilter(getResources().getColor(settings.redoColor), PorterDuff.Mode.MULTIPLY);
+        cancel.getDrawable().mutate().setColorFilter(getResources().getColor(settings.cancelColor), PorterDuff.Mode.MULTIPLY);
+
     }
 
     @Override
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-
+        colorIcons(view);
         int rotation = getArguments().getInt(ROTATION_KEY);
         byte[] data = getArguments().getByteArray(BITMAP_KEY);
         ImageParameters imageParameters = getArguments().getParcelable(IMAGE_INFO);
@@ -83,7 +97,6 @@ public class EditSavePhotoFragment extends Fragment {
 
     private void rotatePicture(int rotation, byte[] data, ImageView photoImageView) {
         Bitmap bitmap = ImageUtility.decodeSampledBitmapFromByte(getActivity(), data);
-//        Log.d(TAG, "original bitmap width " + bitmap.getWidth() + " height " + bitmap.getHeight());
         if (rotation != 0) {
             Bitmap oldBitmap = bitmap;
 
@@ -102,7 +115,9 @@ public class EditSavePhotoFragment extends Fragment {
 
     private void savePicture() {
         View view = getView();
-        if (view == null) return;
+        if (view == null) {
+            return;
+        }
 
         ImageView photoImageView = (ImageView) view.findViewById(R.id.photo);
 

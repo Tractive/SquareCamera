@@ -21,7 +21,6 @@ public class ImageParameters implements Parcelable {
 
         mDisplayOrientation = in.readInt();
         mLayoutOrientation = in.readInt();
-
         mCoverHeight = in.readInt();
         mCoverWidth = in.readInt();
         mPreviewHeight = in.readInt();

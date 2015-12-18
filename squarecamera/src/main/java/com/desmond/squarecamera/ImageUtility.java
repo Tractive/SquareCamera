@@ -58,16 +58,17 @@ public class ImageUtility {
 
     public static Uri savePicture(Context context, Bitmap bitmap) {
         int cropHeight;
-        if (bitmap.getHeight() > bitmap.getWidth()) cropHeight = bitmap.getWidth();
-        else                                        cropHeight = bitmap.getHeight();
+        if (bitmap.getHeight() > bitmap.getWidth()) {
+            cropHeight = bitmap.getWidth();
+        } else {
+            cropHeight = bitmap.getHeight();
+        }
 
         bitmap = ThumbnailUtils.extractThumbnail(bitmap, cropHeight, cropHeight, ThumbnailUtils.OPTIONS_RECYCLE_INPUT);
 
-        File mediaStorageDir = new File(
-                Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES),
-                context.getString(R.string.squarecamera__app_name)
-        );
+        SquareCameraSettings settings = SquareCameraSettings.getCurrentSetting();
 
+        File mediaStorageDir = settings.imageFolder;
         if (!mediaStorageDir.exists()) {
             if (!mediaStorageDir.mkdirs()) {
                 return null;
@@ -119,6 +120,7 @@ public class ImageUtility {
 
         return BitmapFactory.decodeFile(path, options);
     }
+
     /**
      * Decode and sample down a bitmap from a byte stream
      */
@@ -137,7 +139,6 @@ public class ImageUtility {
             reqHeight = display.getHeight();
         }
 
-
         final BitmapFactory.Options options = new BitmapFactory.Options();
         options.inJustDecodeBounds = true;
         options.inMutable = true;
@@ -153,9 +154,11 @@ public class ImageUtility {
         options.inTargetDensity = reqWidth * options.inSampleSize;
 
         // Decode bitmap with inSampleSize set
-        options.inJustDecodeBounds = false; // If set to true, the decoder will return null (no bitmap), but the out... fields will still be set, allowing the caller to query the bitmap without having to allocate the memory for its pixels.
+        options.inJustDecodeBounds
+                = false; // If set to true, the decoder will return null (no bitmap), but the out... fields will still be set, allowing the caller to query the bitmap without having to allocate the memory for its pixels.
         options.inPurgeable = true;         // Tell to gc that whether it needs free memory, the Bitmap can be cleared
-        options.inInputShareable = true;    // Which kind of reference will be used to recover the Bitmap data after being clear, when it will be used in the future
+        options.inInputShareable
+                = true;    // Which kind of reference will be used to recover the Bitmap data after being clear, when it will be used in the future
 
         return BitmapFactory.decodeByteArray(bitmapBytes, 0, bitmapBytes.length, options);
     }
