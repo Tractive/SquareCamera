@@ -19,7 +19,7 @@ public class SquareCameraSettings {
 
     public static class Builder {
 
-        private SquareCameraSettings mSquareCameraSettings = new SquareCameraSettings();
+        private SquareCameraSettings mSquareCameraSettings = SquareCameraSettings.defaultSettings();
 
 
         public Builder imageFolder(File _location) {
@@ -51,7 +51,7 @@ public class SquareCameraSettings {
     }
 
 
-    public void setCustomSettings(SquareCameraSettings _squareCameraSettings) {
+    public static void setCustomSettings(SquareCameraSettings _squareCameraSettings) {
         mSquareCameraSettings = _squareCameraSettings;
     }
 
