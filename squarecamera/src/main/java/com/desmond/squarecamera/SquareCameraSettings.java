@@ -15,13 +15,12 @@ public class SquareCameraSettings {
     @ColorRes int cancelColor;
     @ColorRes int redoColor;
 
-    private static SquareCameraSettings sSquareDefaultSettings = SquareCameraSettings.defaultSettings();
-    private static SquareCameraSettings sSquareCameraSettings = sSquareDefaultSettings;
+    private static SquareCameraSettings sSquareCameraSettings = SquareCameraSettings.defaultSettings();
 
 
     public static class Builder {
 
-        private SquareCameraSettings mSquareCameraSettings = sSquareDefaultSettings;
+        private SquareCameraSettings mSquareCameraSettings = SquareCameraSettings.defaultSettings();
 
 
         public Builder imageFolder(File _location) {
@@ -63,13 +62,15 @@ public class SquareCameraSettings {
     }
 
     public static SquareCameraSettings defaultSettings() {
-        return new Builder()
-                .imageFolder(new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES).getAbsolutePath() +
-                                File.separator + "squarePictures"))
-                .okColor(R.color.squarecamera__white)
-                .cancelColor(R.color.squarecamera__white)
-                .redoColor(R.color.squarecamera__white)
-                .build();
+
+        SquareCameraSettings settings = new SquareCameraSettings();
+
+        settings.imageFolder = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES).getAbsolutePath() +
+                File.separator + "squarePictures");
+        settings.okColor = R.color.squarecamera__white;
+        settings.cancelColor = R.color.squarecamera__white;
+        settings.redoColor = R.color.squarecamera__white;
+        return settings;
     }
 
 }
