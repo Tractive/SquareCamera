@@ -15,11 +15,13 @@ public class SquareCameraSettings {
     @ColorRes int cancelColor;
     @ColorRes int redoColor;
 
-    private static SquareCameraSettings mSquareCameraSettings = SquareCameraSettings.defaultSettings();
+    private static SquareCameraSettings sSquareDefaultSettings = SquareCameraSettings.defaultSettings();
+    private static SquareCameraSettings sSquareCameraSettings = sSquareDefaultSettings;
+
 
     public static class Builder {
 
-        private SquareCameraSettings mSquareCameraSettings = SquareCameraSettings.defaultSettings();
+        private SquareCameraSettings mSquareCameraSettings = sSquareDefaultSettings;
 
 
         public Builder imageFolder(File _location) {
@@ -52,12 +54,12 @@ public class SquareCameraSettings {
 
 
     public static void setCustomSettings(SquareCameraSettings _squareCameraSettings) {
-        mSquareCameraSettings = _squareCameraSettings;
+        sSquareCameraSettings = _squareCameraSettings;
     }
 
 
     static SquareCameraSettings getCurrentSetting() {
-        return mSquareCameraSettings;
+        return sSquareCameraSettings;
     }
 
     public static SquareCameraSettings defaultSettings() {
