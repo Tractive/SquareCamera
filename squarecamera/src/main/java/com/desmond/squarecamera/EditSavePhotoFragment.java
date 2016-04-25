@@ -1,6 +1,9 @@
 package com.desmond.squarecamera;
 
 
+import android.Manifest;
+import android.app.Activity;
+import android.content.Intent;
 import android.content.res.Configuration;
 import android.graphics.Bitmap;
 import android.graphics.Matrix;
@@ -26,6 +29,8 @@ public class EditSavePhotoFragment extends Fragment {
     public static final String BITMAP_KEY = "bitmap_byte_array";
     public static final String ROTATION_KEY = "rotation";
     public static final String IMAGE_INFO = "image_info";
+
+    private static final int REQUEST_STORAGE = 1;
 
     public static Fragment newInstance(byte[] bitmapByteArray, int rotation,
             @NonNull ImageParameters parameters) {
@@ -114,16 +119,32 @@ public class EditSavePhotoFragment extends Fragment {
     }
 
     private void savePicture() {
-        View view = getView();
-        if (view == null) {
-            return;
+        requestForPermission();
+    }
+
+    private void requestForPermission() {
+        RuntimePermissionActivity.startActivity(EditSavePhotoFragment.this,
+                REQUEST_STORAGE,
+                Manifest.permission.WRITE_EXTERNAL_STORAGE);
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (Activity.RESULT_OK != resultCode) return;
+
+        if (REQUEST_STORAGE == requestCode && data != null) {
+            final boolean isGranted = data.getBooleanExtra(RuntimePermissionActivity.REQUESTED_PERMISSION, false);
+            final View view = getView();
+            if (isGranted && view != null) {
+                ImageView photoImageView = (ImageView) view.findViewById(R.id.photo);
+
+                Bitmap bitmap = ((BitmapDrawable) photoImageView.getDrawable()).getBitmap();
+                Uri photoUri = ImageUtility.savePicture(getActivity(), bitmap);
+
+                ((CameraActivity) getActivity()).returnPhotoUri(photoUri);
+            }
+        } else {
+            super.onActivityResult(requestCode, resultCode, data);
         }
-
-        ImageView photoImageView = (ImageView) view.findViewById(R.id.photo);
-
-        Bitmap bitmap = ((BitmapDrawable) photoImageView.getDrawable()).getBitmap();
-        Uri photoUri = ImageUtility.savePicture(getActivity(), bitmap);
-
-        ((CameraActivity) getActivity()).returnPhotoUri(photoUri);
     }
 }

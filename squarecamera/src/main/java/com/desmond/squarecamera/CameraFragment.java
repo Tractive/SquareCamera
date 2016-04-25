@@ -48,6 +48,8 @@ public class CameraFragment extends Fragment implements SurfaceHolder.Callback, 
     private SquareCameraPreview mPreviewView;
     private SurfaceHolder mSurfaceHolder;
 
+    private boolean mIsSafeToTakePhoto = false;
+
     private ImageParameters mImageParameters;
 
     private CameraOrientationListener mOrientationListener;
@@ -60,9 +62,9 @@ public class CameraFragment extends Fragment implements SurfaceHolder.Callback, 
     }
 
     @Override
-    public void onAttach(Activity activity) {
-        super.onAttach(activity);
-        mOrientationListener = new CameraOrientationListener(activity);
+    public void onAttach(Context context) {
+        super.onAttach(context);
+        mOrientationListener = new CameraOrientationListener(context);
     }
 
     @Override
@@ -73,7 +75,7 @@ public class CameraFragment extends Fragment implements SurfaceHolder.Callback, 
         // onCreate() -> onSavedInstanceState() instead of going through onCreateView()
         if (savedInstanceState == null) {
             mCameraID = getBackCameraID();
-            mFlashMode = Camera.Parameters.FLASH_MODE_AUTO;
+            mFlashMode = CameraSettingPreferences.getCameraFlashMode(getActivity());
             mImageParameters = new ImageParameters();
         } else {
             mCameraID = savedInstanceState.getInt(CAMERA_ID_KEY);
@@ -113,6 +115,8 @@ public class CameraFragment extends Fragment implements SurfaceHolder.Callback, 
                     mImageParameters.mCoverWidth = mImageParameters.mCoverHeight
                             = mImageParameters.calculateCoverWidthHeight();
 
+//                    Log.d(TAG, "parameters: " + mImageParameters.getStringValues());
+//                    Log.d(TAG, "cover height " + topCoverView.getHeight());
                     resizeTopAndBtmCover(topCoverView, btnCoverView);
 
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
@@ -224,6 +228,20 @@ public class CameraFragment extends Fragment implements SurfaceHolder.Callback, 
     }
 
     /**
+     * Restart the camera preview
+     */
+    private void restartPreview() {
+        if (mCamera != null) {
+            stopCameraPreview();
+            mCamera.release();
+            mCamera = null;
+        }
+
+        getCamera(mCameraID);
+        startCameraPreview();
+    }
+
+    /**
      * Start the camera preview
      */
     private void startCameraPreview() {
@@ -233,6 +251,9 @@ public class CameraFragment extends Fragment implements SurfaceHolder.Callback, 
         try {
             mCamera.setPreviewDisplay(mSurfaceHolder);
             mCamera.startPreview();
+
+            setSafeToTakePhoto(true);
+            setCameraFocusReady(true);
         } catch (IOException e) {
             Log.d(TAG, "Can't start camera preview due to IOException " + e);
             e.printStackTrace();
@@ -243,9 +264,22 @@ public class CameraFragment extends Fragment implements SurfaceHolder.Callback, 
      * Stop the camera preview
      */
     private void stopCameraPreview() {
+        setSafeToTakePhoto(false);
+        setCameraFocusReady(false);
+
         // Nulls out callbacks, stops face detection
         mCamera.stopPreview();
         mPreviewView.setCamera(null);
+    }
+
+    private void setSafeToTakePhoto(final boolean isSafeToTakePhoto) {
+        mIsSafeToTakePhoto = isSafeToTakePhoto;
+    }
+
+    private void setCameraFocusReady(final boolean isFocusReady) {
+        if (this.mPreviewView != null) {
+            mPreviewView.setIsFocusReady(isFocusReady);
+        }
     }
 
     /**
@@ -359,17 +393,6 @@ public class CameraFragment extends Fragment implements SurfaceHolder.Callback, 
         return bestSize;
     }
 
-    private void restartPreview() {
-        if (mCamera != null) {
-            stopCameraPreview();
-            mCamera.release();
-            mCamera = null;
-        }
-
-        getCamera(mCameraID);
-        startCameraPreview();
-    }
-
     private int getFrontCameraID() {
         PackageManager pm = getActivity().getPackageManager();
         if (pm.hasSystemFeature(PackageManager.FEATURE_CAMERA_FRONT)) {
@@ -387,21 +410,35 @@ public class CameraFragment extends Fragment implements SurfaceHolder.Callback, 
      * Take a picture
      */
     private void takePicture() {
-        mOrientationListener.rememberOrientation();
 
-        // Shutter callback occurs after the image is captured. This can
-        // be used to trigger a sound to let the user know that image is taken
-        Camera.ShutterCallback shutterCallback = null;
+        if (mIsSafeToTakePhoto) {
+            setSafeToTakePhoto(false);
 
-        // Raw callback occurs when the raw image data is available
-        Camera.PictureCallback raw = null;
+            mOrientationListener.rememberOrientation();
 
-        // postView callback occurs when a scaled, fully processed
-        // postView image is available.
-        Camera.PictureCallback postView = null;
+            // Shutter callback occurs after the image is captured. This can
+            // be used to trigger a sound to let the user know that image is taken
+            Camera.ShutterCallback shutterCallback = null;
 
-        // jpeg callback occurs when the compressed image is available
-        mCamera.takePicture(shutterCallback, raw, postView, this);
+            // Raw callback occurs when the raw image data is available
+            Camera.PictureCallback raw = null;
+
+            // postView callback occurs when a scaled, fully processed
+            // postView image is available.
+            Camera.PictureCallback postView = null;
+
+            // jpeg callback occurs when the compressed image is available
+            mCamera.takePicture(shutterCallback, raw, postView, this);
+        }
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+
+        if (mCamera == null) {
+            restartPreview();
+        }
     }
 
     @Override
@@ -414,6 +451,8 @@ public class CameraFragment extends Fragment implements SurfaceHolder.Callback, 
             mCamera.release();
             mCamera = null;
         }
+
+        CameraSettingPreferences.saveCameraFlashMode(getActivity(), mFlashMode);
 
         super.onStop();
     }
@@ -469,6 +508,8 @@ public class CameraFragment extends Fragment implements SurfaceHolder.Callback, 
                         EditSavePhotoFragment.TAG)
                 .addToBackStack(null)
                 .commit();
+
+        setSafeToTakePhoto(true);
     }
 
     private int getPhotoRotation() {

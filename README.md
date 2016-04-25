@@ -7,8 +7,9 @@ Android module that takes a square photo using the native Android Camera APIs. T
 - Tap to focus
 - Two fingers zooming
 - Front & Back camera
-- Flash mode
+- Flash mode (Saved when the user exits)
 - Supports both portrait & landscape
+- Runtime permission is supported for saving/viewing photos
 
 ## SDK Support
 Support from SDK version 14 onwards
@@ -21,13 +22,29 @@ repositories {
 }
 
 dependencies {
-    compile 'com.github.boxme:squarecamera:1.0.2'
+    compile 'com.github.boxme:squarecamera:1.1.0'
 }
 ```
 
 ## Example
 ```
 private static final int REQUEST_CAMERA = 0;
+
+// Check for camera permission in MashMallow
+public void requestForCameraPermission(View view) {
+    final String permission = Manifest.permission.CAMERA;
+    if (ContextCompat.checkSelfPermission(MainActivity.this, permission)
+            != PackageManager.PERMISSION_GRANTED) {
+        if (ActivityCompat.shouldShowRequestPermissionRationale(MainActivity.this, permission)) {
+            // Show permission rationale
+        } else {
+            // Handle the result in Activity#onRequestPermissionResult(int, String[], int[])
+            ActivityCompat.requestPermissions(YourActivity.this, new String[]{permission}, REQUEST_CAMERA_PERMISSION);
+        }
+    } else {
+        // Start CameraActivity
+    }
+}
 
 // Start CameraActivity
 Intent startCustomCameraIntent = new Intent(this, CameraActivity.class);
