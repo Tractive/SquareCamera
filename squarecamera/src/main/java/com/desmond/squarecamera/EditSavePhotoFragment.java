@@ -119,32 +119,20 @@ public class EditSavePhotoFragment extends Fragment {
     }
 
     private void savePicture() {
-        requestForPermission();
-    }
 
-    private void requestForPermission() {
-        RuntimePermissionActivity.startActivity(EditSavePhotoFragment.this,
-                REQUEST_STORAGE,
-                Manifest.permission.WRITE_EXTERNAL_STORAGE);
-    }
+        View view = getView();
+        if (view != null) {
+            ImageView photoImageView = (ImageView) view.findViewById(R.id.photo);
 
-    @Override
-    public void onActivityResult(int requestCode, int resultCode, Intent data) {
-        if (Activity.RESULT_OK != resultCode) return;
+            Bitmap bitmap = ((BitmapDrawable) photoImageView.getDrawable()).getBitmap();
+            Uri photoUri = ImageUtility.savePicture(getActivity(), bitmap);
 
-        if (REQUEST_STORAGE == requestCode && data != null) {
-            final boolean isGranted = data.getBooleanExtra(RuntimePermissionActivity.REQUESTED_PERMISSION, false);
-            final View view = getView();
-            if (isGranted && view != null) {
-                ImageView photoImageView = (ImageView) view.findViewById(R.id.photo);
-
-                Bitmap bitmap = ((BitmapDrawable) photoImageView.getDrawable()).getBitmap();
-                Uri photoUri = ImageUtility.savePicture(getActivity(), bitmap);
-
-                ((CameraActivity) getActivity()).returnPhotoUri(photoUri);
-            }
-        } else {
-            super.onActivityResult(requestCode, resultCode, data);
+            ((CameraActivity) getActivity()).returnPhotoUri(photoUri);
         }
+
+
     }
+
+
+
 }

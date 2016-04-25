@@ -1,21 +1,23 @@
 
 package com.desmond.squarecamera;
 
+import com.tbruyelle.rxpermissions.RxPermissions;
+
+import android.Manifest;
 import android.content.Intent;
-import android.graphics.PorterDuff;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
-import android.widget.ImageView;
+
+import rx.functions.Action1;
 
 
 public class CameraActivity extends AppCompatActivity {
 
-    public static final String TAG = CameraActivity.class.getSimpleName();
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
+    protected void onCreate(final Bundle savedInstanceState) {
         setTheme(R.style.squarecamera__CameraFullScreenTheme);
         super.onCreate(savedInstanceState);
 
@@ -24,14 +26,43 @@ public class CameraActivity extends AppCompatActivity {
         }
         setContentView(R.layout.squarecamera__activity_camera);
 
-        if (savedInstanceState == null) {
-            getSupportFragmentManager()
-                    .beginTransaction()
-                    .replace(R.id.fragment_container, CameraFragment.newInstance(), CameraFragment.TAG)
-                    .commit();
-        }
+        RxPermissions.getInstance(this)
+                .request(Manifest.permission.CAMERA, Manifest.permission.WRITE_EXTERNAL_STORAGE)
+                .subscribe(new Action1<Boolean>() {
+                    @Override
+                    public void call(Boolean _granted) {
+                        if (_granted) {
+
+                            if (savedInstanceState == null) {
+                                getSupportFragmentManager()
+                                        .beginTransaction()
+                                        .replace(R.id.fragment_container, CameraFragment.newInstance(), CameraFragment.TAG)
+                                        .commit();
+                            }
+                        } else {
+                            failPermissionCheck();
+                        }
+                    }
+                });
+
+
     }
 
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+    }
+
+
+
+    private void failPermissionCheck() {
+        Intent data = new Intent();
+        if (getParent() == null) {
+            setResult(RESULT_CANCELED, data);
+        } else {
+            getParent().setResult(RESULT_CANCELED, data);
+        }
+        finish();
+    }
 
     public void returnPhotoUri(Uri uri) {
         Intent data = new Intent();
