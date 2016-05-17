@@ -7,6 +7,7 @@ import android.Manifest;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
+import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 
@@ -14,6 +15,8 @@ import rx.functions.Action1;
 
 
 public class CameraActivity extends AppCompatActivity {
+
+    public static final String PERMISSION_DENIED = "permission_denied";
 
 
     @Override
@@ -53,9 +56,10 @@ public class CameraActivity extends AppCompatActivity {
     }
 
 
-
     private void failPermissionCheck() {
         Intent data = new Intent();
+        data.putExtra(PERMISSION_DENIED, true);
+
         if (getParent() == null) {
             setResult(RESULT_CANCELED, data);
         } else {
@@ -64,8 +68,15 @@ public class CameraActivity extends AppCompatActivity {
         finish();
     }
 
-    public void returnPhotoUri(Uri uri) {
+    public void returnPhotoUri(@Nullable Uri uri) {
         Intent data = new Intent();
+
+        if (uri == null) {
+            setResult(RESULT_CANCELED, data);
+
+            finish();
+            return;
+        }
         data.setData(uri);
 
         if (getParent() == null) {
@@ -78,7 +89,4 @@ public class CameraActivity extends AppCompatActivity {
     }
 
 
-    public void onCancel(View view) {
-        getSupportFragmentManager().popBackStack();
-    }
 }

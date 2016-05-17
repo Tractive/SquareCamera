@@ -64,7 +64,7 @@
                 android:layout_alignParentBottom="true"
                 android:src="@drawable/squarecamera__cancel"
                 android:background="@android:color/transparent"
-                android:onClick="onCancel"/>
+                />
     </RelativeLayout>
 
 </RelativeLayout>

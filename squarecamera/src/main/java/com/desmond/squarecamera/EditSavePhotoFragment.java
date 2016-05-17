@@ -98,6 +98,21 @@ public class EditSavePhotoFragment extends Fragment {
                 savePicture();
             }
         });
+        view.findViewById(R.id.redo_photo).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+              getActivity().getSupportFragmentManager().popBackStack();
+
+            }
+        });
+
+        view.findViewById(R.id.cancel_photo).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                ((CameraActivity) getActivity()).returnPhotoUri(null);
+            }
+        });
+
     }
 
     private void rotatePicture(int rotation, byte[] data, ImageView photoImageView) {
