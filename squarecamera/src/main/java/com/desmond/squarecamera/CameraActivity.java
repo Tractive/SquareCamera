@@ -29,7 +29,7 @@ public class CameraActivity extends AppCompatActivity {
         }
         setContentView(R.layout.squarecamera__activity_camera);
 
-        RxPermissions.getInstance(this)
+        new RxPermissions(this)
                 .request(Manifest.permission.CAMERA, Manifest.permission.WRITE_EXTERNAL_STORAGE)
                 .subscribe(new Action1<Boolean>() {
                     @Override
